@@ -267,7 +267,8 @@ class Picarx(object):
         self.stop()
         self.move(speed, -angle)
         time.sleep(1.5)
-        self.set_dir_servo_angle(0.0)
+        self.move(speed, 0.0)
+        time.sleep(1.5)
         self.stop()
                
 
