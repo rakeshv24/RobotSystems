@@ -241,7 +241,7 @@ class Picarx(object):
             self.backward(-speed)
         
     def parallel_parking(self, speed, dir="Right"):
-        angle = 30 if dir == "Right" else -30
+        angle = 30.0 if dir == "Right" else -30.0
         rev_speed = -abs(speed)
         
         self.move(rev_speed, angle)
@@ -254,9 +254,9 @@ class Picarx(object):
         
     def k_turn(self, speed, dir="Right"):
         speed = abs(speed)
-        angle = 45 if dir == "Right" else -45
+        angle = 30.0 if dir == "Right" else -30.0
         
-        self.move(speed, angle)
+        self.move(speed, angle/2)
         time.sleep(0.5)
         self.stop()
         self.move(speed, -angle)
