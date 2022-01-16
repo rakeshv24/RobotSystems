@@ -253,18 +253,27 @@ class Picarx(object):
         steer_angle = -5
         while steer_angle != 0.0:
             self.set_dir_servo_angle(steer_angle)
-            time.sleep(1)
-            self.forward(50)
+            self.backward(50)
             time.sleep(1)
             steer_angle += 0.5
-
+        
+        self.backward(50)
+        time.sleep(1)
+        self.backward(50)
+        time.sleep(1)
+            
         steer_angle = 5
         while steer_angle != 0.0:
             self.set_dir_servo_angle(steer_angle)
-            time.sleep(1)
             self.forward(50)
             time.sleep(1)
             steer_angle -= 0.5
+            
+        self.forward(50)
+        time.sleep(1)
+        self.backward(50)
+        time.sleep(1)
+               
 
 
 if __name__ == "__main__":
