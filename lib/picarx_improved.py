@@ -269,8 +269,10 @@ class Picarx(object):
         time.sleep(1.5)
         self.set_dir_servo_angle(30)
         self.backward(35)
-        time.sleep(1.5)
+        time.sleep(2.0)
         self.set_dir_servo_angle(0)
+        self.forward(35)
+        time.sleep(0.5)
         self.stop()
             
         # self.forward(25)
