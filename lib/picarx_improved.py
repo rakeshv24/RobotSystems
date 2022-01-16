@@ -264,10 +264,10 @@ class Picarx(object):
         #     time.sleep(0.15)
         #     steer_angle -= 5.0
         
-        self.set_dir_servo_angle(-30)
+        self.set_dir_servo_angle(30)
         self.backward(35)
         time.sleep(1.5)
-        self.set_dir_servo_angle(30)
+        self.set_dir_servo_angle(-30)
         self.backward(35)
         time.sleep(1.5)
         self.set_dir_servo_angle(0)
