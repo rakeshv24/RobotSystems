@@ -238,11 +238,12 @@ class Picarx(object):
         if speed > 0.0:
             self.forward(speed)
         else:
-            self.backward(speed)
+            self.backward(-speed)
         
     def parallel_parking(self, speed, dir="Right"):
         angle = 30 if dir == "Right" else -30
         rev_speed = -abs(speed)
+        print(rev_speed)
         
         self.move(rev_speed, angle)
         time.sleep(1.5)
