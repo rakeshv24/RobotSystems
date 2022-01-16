@@ -1,5 +1,6 @@
 import sys
 sys.path.append(r'/home/vader/picar-x/lib')
+sys.path.append(r'/home/darth/workspace/picar-x/lib')
 from picarx_improved import Picarx
 import time
 import logging
