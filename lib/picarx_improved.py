@@ -225,6 +225,8 @@ class Picarx(object):
         return cm
     
     def calibrate_steering(self):
+        # self.dir_servo_angle_calibration(30)
+        self.set_dir_servo_angle(10)
         start_time = time.time()
         while time.time() - start_time < 5.0:
             self.forward(50)
