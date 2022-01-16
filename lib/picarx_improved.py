@@ -17,8 +17,8 @@ except ImportError:
     PI_FLAG = False
 
 
-logging_format = "%(asctime) s : %(message) s "
-logging.basicConfig(format=logging_format, level=logging.INFO, datefmt="% H :% M :% S ")
+logging_format = "%(asctime)s : %(message)s"
+logging.basicConfig(format=logging_format, level=logging.INFO, datefmt="%H:%M:%S")
 logging.getLogger().setLevel(logging.DEBUG)
 
 
@@ -28,7 +28,7 @@ class Picarx(object):
     TIMEOUT = 0.02
 
     def __init__(self):
-        atexit.register(self.stop)
+        atexit.register(self.cleanup)
         self.dir_servo_pin = Servo(PWM('P2'))
         self.camera_servo_pin1 = Servo(PWM('P0'))
         self.camera_servo_pin2 = Servo(PWM('P1'))
@@ -63,6 +63,9 @@ class Picarx(object):
             pin.period(self.PERIOD)
             pin.prescaler(self.PRESCALER)
 
+    @log_on_start(logging.DEBUG, "Setting motor {motor} to speed {speed}")
+    @log_on_error(logging.DEBUG, "Error when setting motor speed!")
+    @log_on_end(logging.DEBUG, "Set motor {motor} to speed {speed}")
     def set_motor_speed(self, motor, speed):
         # global cali_speed_value,cali_dir_value
         motor -= 1
@@ -100,6 +103,9 @@ class Picarx(object):
             self.cali_dir_value[motor] = -1 * self.cali_dir_value[motor]
         self.config_flie.set("picarx_dir_motor", self.cali_dir_value)
 
+    @log_on_start(logging.DEBUG, "Calibrating servo angle to {value}")
+    @log_on_error(logging.DEBUG, "Error when calibrating servo")
+    @log_on_end(logging.DEBUG, "Calibrated servo to {value}")
     def dir_servo_angle_calibration(self, value):
         # global dir_cal_value
         self.dir_cal_value = value
@@ -152,7 +158,10 @@ class Picarx(object):
     def set_power(self, speed):
         self.set_motor_speed(1, speed)
         self.set_motor_speed(2, speed)
-
+        
+    @log_on_start(logging.DEBUG, "Starting to move backward with speed {speed}")
+    @log_on_error(logging.DEBUG, "Error when moving backward!")
+    @log_on_end(logging.DEBUG, "Moving backward with speed {speed}")
     def backward(self, speed):
         current_angle = self.dir_current_angle
         if current_angle != 0:
@@ -171,7 +180,10 @@ class Picarx(object):
         else:
             self.set_motor_speed(1, -1 * speed)
             self.set_motor_speed(2, speed)
-
+            
+    @log_on_start(logging.DEBUG, "Starting to move forward with speed {speed}")
+    @log_on_error(logging.DEBUG, "Error when moving forward!")
+    @log_on_end(logging.DEBUG, "Moving forward with speed {speed}")
     def forward(self, speed):
         current_angle = self.dir_current_angle
         if current_angle != 0:
@@ -191,9 +203,9 @@ class Picarx(object):
             self.set_motor_speed(1, speed)
             self.set_motor_speed(2, -1 * speed)
 
-    @log_on_start(logging.DEBUG, " Message when function starts ")
-    @log_on_error(logging.DEBUG, " Message when function encounters an error before completing ")
-    @log_on_end(logging.DEBUG, " Message when function ends successfully ")
+    @log_on_start(logging.DEBUG, "Stopping..")
+    @log_on_error(logging.DEBUG, "Error while stopping!")
+    @log_on_end(logging.DEBUG, "Stopped")
     def stop(self):
         self.set_motor_speed(1, 0)
         self.set_motor_speed(2, 0)
@@ -223,7 +235,11 @@ class Picarx(object):
         cm = round(during * 340 / 2 * 100, 2)
         # print(cm)
         return cm
-
+    
+    
+    @log_on_start(logging.DEBUG, "Starting to calibrate servo..")
+    @log_on_error(logging.DEBUG, "Error while calibrating!")
+    @log_on_end(logging.DEBUG, "Successfully calibrated.")
     def calibrate_steering(self):
         self.dir_servo_angle_calibration(0)
         # self.set_dir_servo_angle(0)
@@ -233,49 +249,24 @@ class Picarx(object):
             time.sleep(1)
         self.stop()
 
+    @log_on_start(logging.DEBUG, "Starting to move")
+    @log_on_error(logging.DEBUG, "Error while moving!")
+    @log_on_end(logging.DEBUG, "Moving with speed {speed} at an angle {angle}")
     def move(self, speed, angle):
         self.set_dir_servo_angle(angle)
         if speed > 0.0:
             self.forward(speed)
         else:
             self.backward(-speed)
-        
-    def parallel_parking(self, speed, dir="Right"):
-        angle = 30.0 if dir == "Right" else -30.0
-        rev_speed = -abs(speed)
-        
-        self.move(rev_speed, angle)
-        time.sleep(1.5)
-        self.move(rev_speed, -angle)
-        time.sleep(1.5)
-        self.move(abs(speed), 0.0)
-        time.sleep(0.5)
-        self.stop()
-        
-    def k_turn(self, speed, dir="Right"):
-        speed = abs(speed)
-        angle = 30.0 if dir == "Right" else -30.0
-        
-        self.move(speed, angle/2)
-        time.sleep(0.5)
-        self.stop()
-        self.move(speed, -angle)
-        time.sleep(1.0)
-        self.stop()
-        self.move(-speed, angle)
-        time.sleep(1.0)
-        self.stop()
-        self.move(speed, -angle/2)
-        time.sleep(1.0)
-        self.move(speed, 0.0)
-        time.sleep(1.5)
+            
+    def cleanup(self):
         self.stop()
                
 
 if __name__ == "__main__":
     px = Picarx()
     # px.parallel_parking(35, dir="Left")
-    px.k_turn(50)
+    # px.k_turn(50)
     # px.forward(50)
     # time.sleep(1)
     # set_dir_servo_angle(0)
