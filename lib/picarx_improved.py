@@ -233,58 +233,29 @@ class Picarx(object):
             time.sleep(1)
         self.stop()
 
-    def m1(self):
-        start_time = time.time()
-        while time.time() - start_time < 2.0:
-            self.forward(50)
-            time.sleep(1)
-
-        start_time = time.time()
-        while time.time() - start_time < 2.0:
-            self.backward(50)
-            time.sleep(1)
-
-    def m2_1(self):
-        # steer_angle = -25.0
-        # while steer_angle != 0.0:
-        #     self.set_dir_servo_angle(steer_angle)
-        #     time.sleep(0.1)
-        #     self.backward(35)
-        #     time.sleep(0.15)
-        #     steer_angle += 5.0
+    def move(self, speed, angle):
+        self.set_dir_servo_angle(angle)
+        if speed > 0.0:
+            self.forward(speed)
+        else:
+            self.backward(speed)
         
-        # self.backward(35)
-        # time.sleep(0.25)
-            
-        # steer_angle = 25.0
-        # while steer_angle != -5.0:
-        #     self.set_dir_servo_angle(steer_angle)
-        #     time.sleep(0.1)
-        #     self.backward(35)
-        #     time.sleep(0.15)
-        #     steer_angle -= 5.0
+    def parallel_parking(self, speed, dir="Right"):
+        angle = 30 if dir == "Right" else -30
+        rev_speed = -abs(speed)
         
-        self.set_dir_servo_angle(30)
-        self.backward(35)
+        self.move(rev_speed, angle)
         time.sleep(1.5)
-        self.set_dir_servo_angle(-30)
-        self.backward(35)
+        self.move(rev_speed, -angle)
         time.sleep(1.5)
-        self.set_dir_servo_angle(0)
-        self.forward(35)
+        self.move(abs(speed), 0.0)
         time.sleep(0.5)
-        self.stop()
-            
-        # self.forward(25)
-        # time.sleep(1)
-        # self.forward(25)
-        # time.sleep(1)
-               
+        self.stop()       
 
 
 if __name__ == "__main__":
     px = Picarx()
-    px.m2_1()
+    px.parallel_parking(35, dir="Left")
     # px.forward(50)
     # time.sleep(1)
     # set_dir_servo_angle(0)
