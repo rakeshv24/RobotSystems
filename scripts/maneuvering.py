@@ -63,7 +63,7 @@ if __name__=="__main__":
         speed = 50
         choice = int(input('1: Move forward and backward \n2: Parallel parking \n3: K-Turn \n4: Set speed (Default=50) \n5: Exit \nEnter Choice: '))
         if choice == 1:
-            test_motion(px)
+            test_motion(px, speed)
         elif choice == 2:
             dir = str(input('\nEnter Direction (Left/Right): '))
             parallel_parking(px, speed, dir=dir)
@@ -73,7 +73,6 @@ if __name__=="__main__":
         elif choice == 4:
             speed = int(input('\nEnter Speed: '))
         elif choice == 5:
-            px.stop()
             break
         else:
             logging.error("Entered invalid option")
