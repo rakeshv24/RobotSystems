@@ -254,7 +254,7 @@ class Picarx(object):
         
     def k_turn(self, speed, dir="Right"):
         speed = abs(speed)
-        angle = 60 if dir == "Right" else -60
+        angle = 45 if dir == "Right" else -45
         
         self.move(speed, angle)
         time.sleep(0.5)
@@ -263,14 +263,18 @@ class Picarx(object):
         time.sleep(1.5)
         self.stop()
         self.move(-speed, angle)
-        time.sleep(2.0)
-        self.stop()       
-
+        time.sleep(1.5)
+        self.stop()
+        self.move(speed, -angle)
+        time.sleep(1.5)
+        self.set_dir_servo_angle(0.0)
+        self.stop()
+               
 
 if __name__ == "__main__":
     px = Picarx()
     # px.parallel_parking(35, dir="Left")
-    px.k_turn(50)
+    px.k_turn(35)
     # px.forward(50)
     # time.sleep(1)
     # set_dir_servo_angle(0)
