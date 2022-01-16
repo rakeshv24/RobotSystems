@@ -269,7 +269,8 @@ class Picarx(object):
 
 if __name__ == "__main__":
     px = Picarx()
-    px.parallel_parking(35, dir="Left")
+    # px.parallel_parking(35, dir="Left")
+    px.k_turn(35)
     # px.forward(50)
     # time.sleep(1)
     # set_dir_servo_angle(0)
