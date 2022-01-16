@@ -223,23 +223,56 @@ class Picarx(object):
         cm = round(during * 340 / 2 * 100, 2)
         # print(cm)
         return cm
-    
+
     def calibrate_steering(self):
-        # self.dir_servo_angle_calibration(30)
-        self.set_dir_servo_angle(0)
+        self.dir_servo_angle_calibration(0)
+        # self.set_dir_servo_angle(0)
         start_time = time.time()
         while time.time() - start_time < 5.0:
             self.forward(50)
             time.sleep(1)
         self.stop()
 
+    def m1(self):
+        start_time = time.time()
+        while time.time() - start_time < 2.0:
+            self.forward(50)
+            time.sleep(1)
+
+        start_time = time.time()
+        while time.time() - start_time < 2.0:
+            self.backward(50)
+            time.sleep(1)
+
+    def m2_1(self):
+        start_time = time.time()
+        while time.time() - start_time < 2.0:
+            self.forward(50)
+            time.sleep(1)
+
+        steer_angle = -5
+        while steer_angle != 0.0:
+            self.set_dir_servo_angle(steer_angle)
+            time.sleep(1)
+            self.forward(50)
+            time.sleep(1)
+            steer_angle += 0.5
+
+        steer_angle = 5
+        while steer_angle != 0.0:
+            self.set_dir_servo_angle(steer_angle)
+            time.sleep(1)
+            self.forward(50)
+            time.sleep(1)
+            steer_angle -= 0.5
+
 
 if __name__ == "__main__":
     px = Picarx()
-    px.calibrate_steering()
+    px.m2_1()
     # px.forward(50)
     # time.sleep(1)
-    # px.stop()
+    px.stop()
     # set_dir_servo_angle(0)
     # time.sleep(1)
     # self.set_motor_speed(1, 1)
