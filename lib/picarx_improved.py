@@ -251,7 +251,7 @@ class Picarx(object):
             time.sleep(0.1)
             self.backward(35)
             time.sleep(0.1)
-            steer_angle += 0.5
+            steer_angle += 2.5
         
         self.backward(35)
         time.sleep(0.1)
@@ -264,7 +264,7 @@ class Picarx(object):
             time.sleep(0.1)
             self.backward(35)
             time.sleep(0.1)
-            steer_angle -= 0.5
+            steer_angle -= 2.5
             
         # self.forward(25)
         # time.sleep(1)
