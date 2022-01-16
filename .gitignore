@@ -1,4 +1,4 @@
 .vscode/*
 .config
 build/*
-.pyc
+*.pyc
