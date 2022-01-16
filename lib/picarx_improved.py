@@ -226,7 +226,7 @@ class Picarx(object):
     
     def calibrate_steering(self):
         start_time = time.time()
-        while time.time() - start_time < 10.0:
+        while time.time() - start_time < 5.0:
             self.forward(50)
             time.sleep(1)
         self.stop()
