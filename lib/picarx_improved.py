@@ -245,24 +245,34 @@ class Picarx(object):
             time.sleep(1)
 
     def m2_1(self):
-        steer_angle = -25.0
-        while steer_angle != 0.0:
-            self.set_dir_servo_angle(steer_angle)
-            time.sleep(0.1)
-            self.backward(35)
-            time.sleep(0.15)
-            steer_angle += 5.0
+        # steer_angle = -25.0
+        # while steer_angle != 0.0:
+        #     self.set_dir_servo_angle(steer_angle)
+        #     time.sleep(0.1)
+        #     self.backward(35)
+        #     time.sleep(0.15)
+        #     steer_angle += 5.0
         
-        self.backward(35)
-        time.sleep(0.25)
+        # self.backward(35)
+        # time.sleep(0.25)
             
-        steer_angle = 25.0
-        while steer_angle != -5.0:
-            self.set_dir_servo_angle(steer_angle)
-            time.sleep(0.1)
-            self.backward(35)
-            time.sleep(0.15)
-            steer_angle -= 5.0
+        # steer_angle = 25.0
+        # while steer_angle != -5.0:
+        #     self.set_dir_servo_angle(steer_angle)
+        #     time.sleep(0.1)
+        #     self.backward(35)
+        #     time.sleep(0.15)
+        #     steer_angle -= 5.0
+        
+        self.set_dir_servo_angle(-30)
+        # time.sleep(0.1)
+        self.backward(35)
+        time.sleep(1.5)
+        self.set_dir_servo_angle(30)
+        # time.sleep(0.1)
+        self.backward(35)
+        time.sleep(1.5)
+        self.stop()
             
         # self.forward(25)
         # time.sleep(1)
@@ -276,7 +286,6 @@ if __name__ == "__main__":
     px.m2_1()
     # px.forward(50)
     # time.sleep(1)
-    px.stop()
     # set_dir_servo_angle(0)
     # time.sleep(1)
     # self.set_motor_speed(1, 1)
