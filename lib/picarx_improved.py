@@ -254,7 +254,7 @@ class Picarx(object):
         
     def k_turn(self, speed, dir="Right"):
         speed = abs(speed)
-        angle = 30 if dir == "Right" else -30
+        angle = 60 if dir == "Right" else -60
         
         self.move(speed, angle)
         time.sleep(0.5)
