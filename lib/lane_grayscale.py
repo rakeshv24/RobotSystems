@@ -42,11 +42,11 @@ class Interpreter():
         
         for i in range(len(sensor_values)):
             if sensor_values[i] < min_value:
-                bounded_values[i] = min_value
+                bounded_values.append(min_value)
             elif sensor_values[i] > max_value:
-                bounded_values[i] = max_value
+                bounded_values.append(max_value)
             else:
-                bounded_values[i] = sensor_values[i]
+                bounded_values.append(sensor_values[i])
     
         position = ((bounded_values[2] - bounded_values[0]) / bounded_values[1]) * self.sensitivity
         self.output(position)
