@@ -35,8 +35,8 @@ class Interpreter():
             self.sensitivity = sensitivity
     
     def processing(self, sensor_values):
-        min_value = 750
-        max_value = 1500
+        min_value = 0
+        max_value = 450
         
         bounded_values = []
         
