@@ -57,10 +57,13 @@ class Interpreter():
         self.output(position)
         
         
-    def output(self, position):
+    def output(self, sensor_values):
+        position = self.processing(sensor_values)
+        
         if self.polarity == 1:
             position *= -1
-        
+            
+        print(position)
         return position
 
 
