@@ -15,7 +15,7 @@ class Camera():
 
     def raw_capture(self):
         frame = self.camera.capture(self.raw_cap, format="bgr")
-        return frame
+        return self.raw_cap
 
     def blue_mask(self, frame):
         lowerBlue = np.array([60, 40, 40])
