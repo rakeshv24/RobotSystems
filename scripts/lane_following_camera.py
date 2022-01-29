@@ -13,7 +13,7 @@ if __name__=="__main__":
     px = Picarx()
     camera = Camera()
     
-    px.set_camera_servo1_angle(-15)
+    px.set_camera_servo2_angle(-15)
 
     while True:
         frame = camera.raw_capture()
