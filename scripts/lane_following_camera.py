@@ -30,10 +30,9 @@ if __name__=="__main__":
 
         px.set_dir_servo_angle(-steering_angle)
 
-        camera.raw_capture.truncate(0)
-
         key = cv2.waitKey(1) & 0xFF
         if key == 27:
+            cv2.destroyAllWindows()
             camera.camera.close()
             px.stop()
             break
