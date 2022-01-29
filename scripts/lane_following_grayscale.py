@@ -11,7 +11,7 @@ from lane_grayscale import Sensing, Interpreter, Controller
 if __name__=="__main__":
     px = Picarx()
     sensor = Sensing()
-    interp = Interpreter(sensitivity=1, polarity=0)
+    interp = Interpreter(sensitivity=0.5, polarity=0)
     controller = Controller(scale=20)
     
     timeout = 5.0 + time.time()
@@ -20,8 +20,7 @@ if __name__=="__main__":
         sensor_values = sensor.sensor_reading()
         robot_pos = interp.output(sensor_values)
         controller.control(px, robot_pos)
-        px.forward(50)
-        # time.sleep(1)
+        px.forward(30)
 
         if time.time() > timeout:
             break
