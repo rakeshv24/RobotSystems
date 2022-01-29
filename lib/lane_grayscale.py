@@ -53,6 +53,7 @@ class Interpreter():
         print(bounded_values)
         print(position)
         print(sensor_values)
+        return position
         
     def output(self, sensor_values):
         position = self.processing(sensor_values)
