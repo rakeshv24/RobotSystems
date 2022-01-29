@@ -29,7 +29,7 @@ if __name__=="__main__":
 
         px.set_dir_servo_angle(-steering_angle)
 
-        camera.rawCapture.truncate(0)
+        camera.raw_capture.truncate(0)
 
         key = cv2.waitKey(1) & 0xFF
         if key == 27:
