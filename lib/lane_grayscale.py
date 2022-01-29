@@ -48,7 +48,7 @@ class Interpreter():
                 bounded_values.append(sensor_values[i])
         
         print(bounded_values)
-    
+        
         position = ((bounded_values[2] - bounded_values[0]) / bounded_values[1]) * self.sensitivity
         return position
         
