@@ -2,8 +2,6 @@ import sys
 sys.path.append(r'/home/vader/picar-x/lib')
 sys.path.append(r'/home/darth/workspace/picar-x/lib')
 import time
-import logging
-from logdecorator import log_on_start, log_on_end, log_on_error
 from picarx_improved import Picarx
 from lane_grayscale import Sensing, Interpreter, Controller
 

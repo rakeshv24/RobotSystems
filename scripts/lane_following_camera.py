@@ -1,22 +1,23 @@
 import sys
 sys.path.append(r'/home/vader/picar-x/lib')
 sys.path.append(r'/home/darth/workspace/picar-x/lib')
-import time
 import logging
-from logdecorator import log_on_start, log_on_end, log_on_error
 from picarx_improved import Picarx
 from camera import Camera
-from picamera.array import PiRGBArray
 import cv2
-  
+logging.basicConfig(format="%(asctime)s:%(message)s", level=logging.INFO, datefmt="%H:%M:%S")
+logging.getLogger().setLevel(logging.INFO)
 
-if __name__=="__main__":
+if __name__ == "__main__":
     px = Picarx()
     camera = Camera()
-    px.set_camera_servo2_angle(0)
+    
+    # Tilting the camera down
+    px.set_camera_servo2_angle(-10)
 
+    logging.info("Start lane following.\n")
     for frame in camera.camera.capture_continuous(camera.raw_cap, format="bgr", use_video_port=True):
-        
+
         frame_array = frame.array
 
         lane_lines = camera.detect_lane(frame_array)
@@ -25,10 +26,11 @@ if __name__=="__main__":
         steering_angle = camera.get_steering_angle(frame_array, lane_lines)
         heading_img = camera.display_heading_line(lines_img, steering_angle)
         cv2.imshow('heading', heading_img)
-        
+
         camera.raw_cap.truncate(0)
-        
+
         px.set_dir_servo_angle(steering_angle - 90)
+        px.forward(30)
 
         key = cv2.waitKey(1) & 0xFF
         if key == 27:
@@ -36,5 +38,3 @@ if __name__=="__main__":
             camera.camera.close()
             px.stop()
             break
-
-        px.forward(30)
