@@ -19,6 +19,7 @@ if __name__=="__main__":
     while True:
         sensor_values = sensor.sensor_reading()
         robot_pos = interp.processing(sensor_values)
+        print(robot_pos)
         controller.control(px, robot_pos)
         px.move(25, 0)
 
