@@ -14,7 +14,7 @@ if __name__=="__main__":
     interp = Interpreter(sensitivity=0.5, polarity=0)
     controller = Controller(scale=20)
     
-    timeout = 5.0 + time.time()
+    timeout = 3.0 + time.time()
     
     while True:
         sensor_values = sensor.sensor_reading()
