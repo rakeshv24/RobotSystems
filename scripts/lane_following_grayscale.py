@@ -14,14 +14,14 @@ if __name__=="__main__":
     interp = Interpreter(sensitivity=1, polarity=0)
     controller = Controller(scale=20)
     
-    timeout = 3.0 + time.time()
+    timeout = 5.0 + time.time()
     
     while True:
         sensor_values = sensor.sensor_reading()
         robot_pos = interp.output(sensor_values)
-        print(robot_pos)
         controller.control(px, robot_pos)
-        px.move(25, 0)
+        px.forward(50)
+        # time.sleep(1)
 
         if time.time() > timeout:
             break

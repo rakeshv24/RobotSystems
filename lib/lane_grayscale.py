@@ -4,7 +4,6 @@ sys.path.append(r'/home/darth/workspace/picar-x/lib')
 import time
 import logging
 from logdecorator import log_on_start, log_on_end, log_on_error
-from picarx_improved import Picarx
 from adc import ADC
 
 
@@ -36,7 +35,7 @@ class Interpreter():
     
     def processing(self, sensor_values):
         min_value = 0
-        max_value = 450
+        max_value = 500
         
         bounded_values = []
         
@@ -49,10 +48,6 @@ class Interpreter():
                 bounded_values.append(sensor_values[i])
     
         position = ((bounded_values[2] - bounded_values[0]) / bounded_values[1]) * self.sensitivity
-        
-        print(bounded_values)
-        print(position)
-        print(sensor_values)
         return position
         
     def output(self, sensor_values):
@@ -61,7 +56,6 @@ class Interpreter():
         if self.polarity == 1:
             position *= -1
             
-        print(position)
         return position
 
 
