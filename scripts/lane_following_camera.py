@@ -15,7 +15,8 @@ if __name__=="__main__":
     
     px.set_camera_servo1_angle(-15)
 
-    for frame in camera.camera.capture_continuous(camera.raw_capture, format='bgr', use_video_port=True):
+    while True:
+        frame = camera.raw_capture()
         px.forward(30)
 
         frame_array = frame.array
