@@ -79,9 +79,10 @@ def test_motion(px, speed, angle = 0.0):
     
 
 if __name__=="__main__":
+    px = Picarx()
+    speed = 50
+    
     while(1):
-        px = Picarx()
-        speed = 50
         choice = int(input('1: Move forward and backward \n2: Parallel parking \n3: K-Turn \n4: Set speed (Default=50) \n5: Exit \nEnter Choice: '))
         if choice == 1:
             test_motion(px, speed)
