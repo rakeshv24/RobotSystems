@@ -54,9 +54,6 @@ class Interpreter():
         print(position)
         print(sensor_values)
         
-        self.output(position)
-        
-        
     def output(self, sensor_values):
         position = self.processing(sensor_values)
         
