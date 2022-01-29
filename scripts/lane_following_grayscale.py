@@ -19,7 +19,6 @@ if __name__=="__main__":
     while True:
         sensor_values = sensor.sensor_reading()
         robot_pos = interp.output(sensor_values)
-        print(robot_pos)
         controller.control(px, robot_pos)
         px.forward(30)
 
