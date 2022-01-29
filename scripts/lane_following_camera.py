@@ -13,7 +13,7 @@ import cv2
 if __name__=="__main__":
     px = Picarx()
     camera = Camera()
-    px.set_camera_servo2_angle(-15)
+    px.set_camera_servo2_angle(0)
 
     for frame in camera.camera.capture_continuous(camera.raw_cap, format="bgr", use_video_port=True):
         
