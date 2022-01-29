@@ -12,11 +12,7 @@ class Camera():
         self.camera.resolution = resolution
         self.camera.framerate = framerate
         self.raw_cap = PiRGBArray(self.camera, size=self.camera.resolution)
-
-    def raw_capture(self):
-        frame = self.camera.capture(self.raw_cap, format="bgr")
-        return self.raw_cap
-
+        
     def blue_mask(self, frame):
         lowerBlue = np.array([60, 40, 40])
         upperBlue = np.array([150, 255, 255])

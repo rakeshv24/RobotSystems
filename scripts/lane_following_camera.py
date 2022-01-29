@@ -14,12 +14,9 @@ if __name__=="__main__":
     px = Picarx()
     camera = Camera()
     px.set_camera_servo2_angle(-15)
-    scaling_factor = 0.25
 
-    while True:
-        frame = camera.raw_capture()
-        px.forward(30)
-
+    for frame in camera.camera.capture_continuous(camera.raw_cap, format="bgr", use_video_port=True):
+        
         frame_array = frame.array
 
         lane_lines = camera.detect_lane(frame_array)
@@ -29,8 +26,9 @@ if __name__=="__main__":
         heading_img = camera.display_heading_line(lines_img, steering_angle)
         cv2.imshow('heading', heading_img)
         
-        turn = -1 * scaling_factor * steering_angle
-        px.set_dir_servo_angle(int(turn))
+        camera.raw_cap.truncate(0)
+        
+        px.set_dir_servo_angle(steering_angle - 90)
 
         key = cv2.waitKey(1) & 0xFF
         if key == 27:
@@ -38,5 +36,5 @@ if __name__=="__main__":
             camera.camera.close()
             px.stop()
             break
-        
-        camera.raw_cap = PiRGBArray(camera.camera, size=camera.camera.resolution)
+
+        px.forward(30)
