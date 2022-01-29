@@ -11,9 +11,10 @@ class Camera():
         self.camera = PiCamera()
         self.camera.resolution = resolution
         self.camera.framerate = framerate
+        self.raw_cap = PiRGBArray(self.camera, size=self.camera.resolution)
 
     def raw_capture(self):
-        self.raw_cap = PiRGBArray(self.camera, size=self.camera.resolution)
+        self.camera.capture(self.raw_cap, format="bgr")
         return self.raw_cap
 
     def blue_mask(self, frame):
