@@ -1,7 +1,7 @@
 import concurrent.futures
 import sys
-# sys.path.append('.')
-sys.path.append('../../picar-x/lib')
+import os
+sys.path.append(os.path.realpath("../lib"))
 import logging
 from bus import Bus
 from picarx_improved import Picarx
