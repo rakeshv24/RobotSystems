@@ -53,8 +53,8 @@ class Interpreter():
         it is very off-center or only slightly off-center. 
         '''
         
-        min_value = 5
-        max_value = 500
+        min_value = 750
+        max_value = 1500
         
         # Clamping the sensor values
         bounded_values = []
