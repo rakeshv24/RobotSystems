@@ -78,7 +78,7 @@ class Interpreter():
         or right. It is then divided by the center value.
         '''        
         position = ((bounded_values[2] - bounded_values[0]) / bounded_values[1]) * self.sensitivity
-        position = self.normalize(position, min_value, max_value)
+        position = self.normalize(position, -1, 1)
         
         return position
     
