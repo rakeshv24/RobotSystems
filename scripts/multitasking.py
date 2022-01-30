@@ -7,6 +7,7 @@ import logging
 from bus import Bus
 from picarx_improved import Picarx
 from lane_grayscale import Sensing, Interpreter, Controller
+import time
 logging.basicConfig(format="%(asctime)s:%(message)s", level=logging.INFO, datefmt="%H:%M:%S")
 logging.getLogger().setLevel(logging.INFO)
 
@@ -23,6 +24,7 @@ if __name__ == "__main__":
     controller = Controller(px)
 
     delay = 0.5
+    timeout = 3.0 + time.time()
 
     while True:
         with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
@@ -33,3 +35,10 @@ if __name__ == "__main__":
         sensor_ex.result()
         interpret_ex.result()
         control_ex.result()
+        
+        px.forward(30)
+
+        if time.time() > timeout:
+            break
+            
+    px.stop()
