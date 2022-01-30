@@ -116,6 +116,9 @@ class Controller():
     def control(self, position):
         steering_angle = self.scale * position
         self.px.set_dir_servo_angle(steering_angle)
+        time.sleep(0.01)
+        self.px.forward(30)
+        time.sleep(0.05)
         return steering_angle
     
     def controller_thread(self, interpreter_bus, control_bus, delay):
@@ -123,4 +126,3 @@ class Controller():
             robot_pos = interpreter_bus.read()
             control_bus.write(self.control(robot_pos))
             time.sleep(delay)
-            self.px.forward(30)
