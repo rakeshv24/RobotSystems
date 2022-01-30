@@ -6,6 +6,7 @@ from logdecorator import log_on_start, log_on_end, log_on_error
 from adc import ADC
 logging.basicConfig(format="%(asctime)s:%(message)s", level=logging.INFO, datefmt="%H:%M:%S")
 logging.getLogger().setLevel(logging.DEBUG)
+import time
 
 
 class Sensing():
@@ -23,6 +24,11 @@ class Sensing():
         sensor_value_list.append(self.channel_1.read())
         sensor_value_list.append(self.channel_2.read())
         return sensor_value_list
+    
+    def sensor_thread(self, sense_bus, delay):
+        while True:
+            sense_bus.write(self.sensor_reading())
+            time.sleep(delay)
 
 
 class Interpreter():
@@ -85,16 +91,29 @@ class Interpreter():
             position *= -1
             
         return position
+    
+    def interpreter_thread(self, sense_bus, interpreter_bus, delay):
+        while True:
+            sensor_values = sense_bus.read()
+            interpreter_bus.write(self.output(sensor_values))
+            time.sleep(delay)
 
 
 class Controller():
-    def __init__(self, scale=20):
+    def __init__(self, px, scale=20):
         self.scale = scale
+        self.px = px
     
     @log_on_start(logging.DEBUG, "Changing steer angle")
     @log_on_error(logging.DEBUG, "Error when changing steer angle")
     @log_on_end(logging.DEBUG, "Changed steer angle")
-    def control(self, px, position):
+    def control(self, position):
         steering_angle = self.scale * position
-        px.set_dir_servo_angle(steering_angle)
+        self.px.set_dir_servo_angle(steering_angle)
         return steering_angle
+    
+    def controller_thread(self, interpreter_bus, control_bus, delay):
+        while True:
+            robot_pos = interpreter_bus.read()
+            control_bus.write(self.control(robot_pos))
+            time.sleep(delay)
