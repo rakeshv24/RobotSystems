@@ -59,8 +59,8 @@ class Interpreter():
         it is very off-center or only slightly off-center. 
         '''
         
-        min_value = 750
-        max_value = 1500
+        min_value = 1e-5
+        max_value = 500
         
         # Clamping the sensor values
         bounded_values = []
@@ -75,10 +75,16 @@ class Interpreter():
         
         '''
         The difference between the outer sensor values is evaluated to determine if the car is oriented towards the left
-        or right. It is then divided by the center value to normalize the value to be between -1 and 1.
+        or right. It is then divided by the center value.
         '''        
         position = ((bounded_values[2] - bounded_values[0]) / bounded_values[1]) * self.sensitivity
+        position = self.normalize(position, min_value, max_value)
+        
         return position
+    
+    def normalize(self, position, min_value, max_value):
+        norm_pos = (position - min_value) / (max_value - min_value)
+        return norm_pos        
         
     def output(self, sensor_values):
         '''
