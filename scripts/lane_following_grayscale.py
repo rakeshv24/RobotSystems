@@ -18,8 +18,7 @@ if __name__=="__main__":
         sensor_values = sensor.sensor_reading()
         robot_pos = interp.output(sensor_values)
         controller.control(robot_pos)
-        px.forward(30)
-
+        
         if time.time() > timeout:
             break
             
