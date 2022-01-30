@@ -29,3 +29,7 @@ if __name__ == "__main__":
         sensor_ex = executor.submit(sensor.sensor_thread, sense_bus, delay)
         interpret_ex = executor.submit(interpreter.interpreter_thread, sense_bus, interpret_bus, delay)
         control_ex = executor.submit(controller.controller_thread, interpret_bus, control_bus, delay)
+        
+    sensor_ex.result()
+    interpret_ex.result()
+    control_ex.result()
