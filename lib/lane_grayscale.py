@@ -123,3 +123,4 @@ class Controller():
             robot_pos = interpreter_bus.read()
             control_bus.write(self.control(robot_pos))
             time.sleep(delay)
+            self.px.forward(30)
