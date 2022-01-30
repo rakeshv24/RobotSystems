@@ -23,7 +23,7 @@ if __name__ == "__main__":
     interpreter = Interpreter()
     controller = Controller(px)
 
-    delay = 0.5
+    delay = 0.05
     
     try:
         with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
