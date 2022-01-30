@@ -20,7 +20,7 @@ if __name__ == "__main__":
 
     sensor = Sensing()
     interpreter = Interpreter()
-    controller = Controller()
+    controller = Controller(px)
 
     delay = 0.5
 
