@@ -24,18 +24,8 @@ if __name__ == "__main__":
     controller = Controller(px)
 
     delay = 0.05
-    timeout = 3.0 + time.time()
 
-    while True:    
-        with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
-            sensor_ex = executor.submit(sensor.sensor_thread, sense_bus, delay)
-            interpret_ex = executor.submit(interpreter.interpreter_thread, sense_bus, interpret_bus, delay)
-            control_ex = executor.submit(controller.controller_thread, interpret_bus, control_bus, delay)
-        
-        if time.time() > timeout:
-            sensor_ex.cancel()
-            interpret_ex.cancel()
-            control_ex.cancel()
-            break
-            
-    px.stop()    
+    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+        sensor_ex = executor.submit(sensor.sensor_thread, sense_bus, delay)
+        interpret_ex = executor.submit(interpreter.interpreter_thread, sense_bus, interpret_bus, delay)
+        control_ex = executor.submit(controller.controller_thread, interpret_bus, control_bus, delay)
