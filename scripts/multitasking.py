@@ -1,7 +1,8 @@
 import concurrent.futures
 import sys
 import os
-sys.path.append(os.path.realpath("../lib"))
+sys.path.append(r'/home/vader/picar-x/lib')
+sys.path.append(r'/home/darth/workspace/picar-x/lib')
 import logging
 from bus import Bus
 from picarx_improved import Picarx
