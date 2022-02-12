@@ -210,10 +210,13 @@ class Picarx(object):
         self.set_motor_speed(1, 0)
         self.set_motor_speed(2, 0)
 
+    @log_on_start(logging.DEBUG, "Getting range from ultrasonic sensor...")
+    @log_on_error(logging.DEBUG, "Error in Get_distance()!")
+    @log_on_end(logging.DEBUG, "Received distance from the sensor!")
     def Get_distance(self):
         timeout = 0.01
-        trig = Pin('D8')
-        echo = Pin('D9')
+        trig = Pin('D2')
+        echo = Pin('D3')
 
         trig.low()
         time.sleep(0.01)

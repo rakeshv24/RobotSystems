@@ -1,36 +1,46 @@
+import sys
+sys.path.append(r'/home/vader/picar-x/lib')
+sys.path.append(r'/home/darth/workspace/picar-x/lib')
 import time
+import numpy as np
 
 
-class Ultrasonic():
-    def __init__(self, trig, echo, timeout=0.02):
-        self.trig = trig
-        self.echo = echo
-        self.timeout = timeout
+class UltrasonicSensing():
+    def __init__(self, px):
+        self.px = px
 
-    def _read(self):
-        self.trig.low()
-        time.sleep(0.01)
-        self.trig.high()
-        time.sleep(0.00001)
-        self.trig.low()
-        pulse_end = 0
-        pulse_start = 0
-        timeout_start = time.time()
-        while self.echo.value()==0:
-            pulse_start = time.time()
-            if pulse_start - timeout_start > self.timeout:
-                return -1
-        while self.echo.value()==1:
-            pulse_end = time.time()
-            if pulse_end - timeout_start > self.timeout:
-                return -1
-        during = pulse_end - pulse_start
-        cm = round(during * 340 / 2 * 100, 2)
-        return cm
+    def get_data(self):
+        return self.px.Get_distance()
 
-    def read(self, times=10):
-        for i in range(times):
-            a = self._read()
-            if a != -1 or a <= 300:
-                return a
-        return -1
+    def read(self):
+        values = []
+        for _ in range(5):
+            values.append(self.get_data())
+        avg_sensor_value = np.mean(values, axis=0)
+        return avg_sensor_value
+
+
+class UltrasonicInterpreter():
+    def __init__(self, stopping_range=10):
+        self.stopping_range = stopping_range
+
+    def processing(self, distance):
+        if distance < 0:
+            return 1
+        elif distance > self.stopping_range:
+            return 1
+        else:
+            return 0
+
+
+class UltrasonicController():
+    def __init__(self, px):
+        self.px = px
+
+    def control(self, move_signal):
+        if move_signal == 1:
+            self.px.forward(50)
+            time.sleep(0.05)
+        else:
+            self.px.stop()
+            time.sleep(0.05)
