@@ -13,11 +13,11 @@ class UltrasonicSensing():
         return self.px.Get_distance()
 
     def read(self):
-        values = []
-        for _ in range(5):
-            values.append(self.get_data())
-        avg_sensor_value = np.mean(values, axis=0)
-        return avg_sensor_value
+        for i in range(10):
+            dist = self.get_data()
+            if dist != -1 and dist <= 300:
+                return dist
+        return -1
 
 
 class UltrasonicInterpreter():
