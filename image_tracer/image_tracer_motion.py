@@ -3,6 +3,7 @@
 
 import sys
 import cv2
+import time
 import math
 import rospy
 import numpy as np
@@ -115,53 +116,25 @@ def init():
 def run(img):
     global start_move
     global x_dis, y_dis, z_dis
-    global color_range
-    global __target_color
+    global lock, __isRunning
 
     imgObj = Perception(img)
+    imgObj.image_processing()
+    imgObj.feature_detection()
+    imgObj.draw_features()
+    
+    xPid = Motion(x_pid, x_dis)
+    yPid = Motion(y_pid, y_dis)
+    zPid = Motion(z_pid, z_dis)
 
-    # Drawing a plus in the middle of image frame
-    imgObj.draw_center()
-
-    # Resizing the image frame and getting the color conversion code
-    imgObj.modify_frame_params()
-
-    # Checking if the target color is in the color range list ('/lab_config_manager/color_range_list')
-    if __target_color in color_range:
-        # Getting the range of the target color
-        target_color_range = color_range[__target_color]
-
-        # Creating a mask for the image
-        mask = imgObj.get_mask(target_color_range)
-
-        # Removes the white noise of the image
-        eroded_frame = imgObj.erode(mask)
-
-        # Accentuates image features
-        dilated_frame = imgObj.dilate(eroded_frame)
-
-        # Finding the contours of the image frame
-        contours = imgObj.get_contours(dilated_frame)
-
-        # Getting the max area and the max contour area
-        imgObj.update_max_cont_area(contours)
-
-    if imgObj.max_area > 100:
-        imgObj.get_circle_params()
-
-        # If the radius is bigger than 100 pixels then we return the original image
-        if imgObj.radius > 100:
-            return img
-
-        imgObj.draw_circle(__target_color)
-
-        xPid = Motion(x_pid, x_dis)
-        yPid = Motion(y_pid, y_dis)
-        zPid = Motion(z_pid, z_dis)
-
-        if start_move:
+    if start_move:
+        for f in imgObj.features:
+            x, y = f.ravel()
+            x = int(Misc.map(x, 0, size[0], 0, imgObj.img_width))
+            y = int(Misc.map(y, 0, size[1], 0, imgObj.img_height))
+                        
             xPid.pid.SetPoint = imgObj.img_width / 2.0
-            xPid.update(imgObj.cX)
+            xPid.update(x)
             xPid.mod_dist(xPid.pid.output)
             xPid.clamp_dist(200, 800)
 
@@ -173,7 +146,7 @@ def run(img):
             yPid.clamp_dist(0.12, 0.25)
 
             zPid.pid.SetPoint = imgObj.img_height / 2.0
-            zPid.update(imgObj.cY)
+            zPid.update(y)
             zPid.mod_dist(zPid.pid.output)
             zPid.clamp_dist(0.17, 0.22)
 
@@ -182,6 +155,12 @@ def run(img):
                 servo_data = target[1]
                 bus_servo_control.set_servos(joints_pub, 20, (
                     (3, servo_data['servo3']), (4, servo_data['servo4']), (5, servo_data['servo5']), (6, xPid.dis)))
+                
+            time.sleep(2)
+    
+    with lock:
+        __isRunning = False
+    
     return img
 
 
@@ -298,7 +277,7 @@ def heartbeat_srv_cb(msg):
     if isinstance(heartbeat_timer, Timer):
         heartbeat_timer.cancel()
     if msg.data:
-        heartbeat_timer = Timer(5, rospy.ServiceProxy('/object_tracking/exit', Trigger))
+        heartbeat_timer = Timer(5, rospy.ServiceProxy('/image_tracer/exit', Trigger))
         heartbeat_timer.start()
     rsp = SetBoolResponse()
     rsp.success = msg.data
@@ -315,24 +294,23 @@ class Perception():
         self.max_area = 0
         self.max_area_contour = 0
 
-    def draw_center(self):
-        cv2.line(self.img,
-                 (int(self.img_width / 2 - 10), int(self.img_height / 2)),
-                 (int(self.img_width / 2 + 10), int(self.img_height / 2)),
-                 (0, 255, 255), 2)
+    def draw_features(self):
+        for i in self.features:
+            x, y = i.ravel()
+            x = int(Misc.map(x, 0, size[0], 0, self.img_width))
+            y = int(Misc.map(y, 0, size[1], 0, self.img_height))
+            cv2.circle(self.img, (x, y), 4, 200, -1)
 
-        cv2.line(self.img,
-                 (int(self.img_width / 2), int(self.img_height / 2 - 10)),
-                 (int(self.img_width / 2), int(self.img_height / 2 + 10)),
-                 (0, 255, 255), 2)
-
-    def modify_frame_params(self):
+    def image_processing(self):
         self.frame = cv2.resize(self.img_copy, size, interpolation=cv2.INTER_NEAREST)
-        self.frame_Lab = cv2.cvtColor(self.frame, cv2.COLOR_BGR2LAB)
-
-    def get_mask(self, color_range):
-        return cv2.inRange(self.frame_Lab, tuple(color_range['min']), tuple(color_range['max']))
-
+        self.gray_image = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
+        
+    def feature_detection(self):
+        gray = np.float32(self.gray_image)
+        self.features = cv2.goodFeaturesToTrack(gray, 10, 0.01, 10)
+        self.features = np.int0(self.features).reshape(-1, 2)
+        self.features = self.features[np.argsort(self.features[:, 0])]
+        
     def erode(self, frame):
         return cv2.erode(frame, cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3)))
 
@@ -341,24 +319,6 @@ class Perception():
 
     def get_contours(self, frame):
         return cv2.findContours(frame, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[-2]
-
-    def update_max_cont_area(self, contours):
-        for c in contours:
-            contour_area_temp = math.fabs(cv2.contourArea(c))
-            if contour_area_temp > self.max_area:
-                self.max_area = contour_area_temp
-                if contour_area_temp > 10:
-                    self.max_area_contour = c
-
-    def get_circle_params(self):
-        (cX, cY), radius = cv2.minEnclosingCircle(self.max_area_contour)
-
-        self.cX = int(Misc.map(cX, 0, size[0], 0, self.img_width))
-        self.cY = int(Misc.map(cY, 0, size[1], 0, self.img_height))
-        self.radius = int(Misc.map(radius, 0, size[0], 0, self.img_width))
-
-    def draw_circle(self, color):
-        cv2.circle(self.img, (int(self.cX), int(self.cY)), int(self.radius), range_rgb[color], 2)
 
 
 class Motion():
@@ -378,19 +338,19 @@ class Motion():
 
 
 if __name__ == '__main__':
-    rospy.init_node('object_tracking', log_level=rospy.DEBUG)
+    rospy.init_node('image_tracer', log_level=rospy.DEBUG)
 
     joints_pub = rospy.Publisher('/servo_controllers/port_id_1/multi_id_pos_dur', MultiRawIdPosDur, queue_size=1)
 
-    image_pub = rospy.Publisher('/object_tracking/image_result', Image, queue_size=1)  # register result image publisher
+    image_pub = rospy.Publisher('/image_tracer/image_result', Image, queue_size=1)  # register result image publisher
 
     rgb_pub = rospy.Publisher('/sensor/rgb_led', Led, queue_size=1)
 
-    enter_srv = rospy.Service('/object_tracking/enter', Trigger, enter_func)
-    exit_srv = rospy.Service('/object_tracking/exit', Trigger, exit_func)
-    running_srv = rospy.Service('/object_tracking/set_running', SetBool, set_running)
-    set_target_srv = rospy.Service('/object_tracking/set_target', SetTarget, set_target)
-    heartbeat_srv = rospy.Service('/object_tracking/heartbeat', SetBool, heartbeat_srv_cb)
+    enter_srv = rospy.Service('/image_tracer/enter', Trigger, enter_func)
+    exit_srv = rospy.Service('/image_tracer/exit', Trigger, exit_func)
+    running_srv = rospy.Service('/image_tracer/set_running', SetBool, set_running)
+    set_target_srv = rospy.Service('/image_tracer/set_target', SetTarget, set_target)
+    heartbeat_srv = rospy.Service('/image_tracer/heartbeat', SetBool, heartbeat_srv_cb)
 
     debug = False
     if debug:
