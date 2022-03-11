@@ -110,8 +110,7 @@ def init():
     rospy.loginfo("object tracking Init")
     initMove()
     reset()
-
-
+    
 def run(img):
     global start_move
     global x_dis, y_dis, z_dis
@@ -125,6 +124,8 @@ def run(img):
     points = np.array([[50, 50], [150, 50], [50, 150], [150, 150]])
     x_move = 0.0
     y_move = 0.0
+    x_min, x_max = -.15, .15
+    z_min, z_max = -.15, .15
     
     xPid = Motion(x_pid, x_dis)
     yPid = Motion(y_pid, y_dis)
@@ -132,13 +133,25 @@ def run(img):
 
     if start_move:
         # for f in imgObj.features:
-        for f in points:
-            x, y = f.ravel()
-            x = int(Misc.map(x, 0, size[0], 0, imgObj.img_width))
-            y = int(Misc.map(y, 0, size[1], 0, imgObj.img_height))
+        for i in range(points):
+            x, z = points[i].ravel()
             
-            x += x_move
-            y += y_move            
+            if i > 0:
+                x_prev, z_prev = points[i-1].ravel()
+                x_diff = x - x_prev
+                z_diff = z - z_prev
+                
+                x = (size[0] / 2) + x_diff
+                z = (size[1] / 2) + z_diff
+            
+            x = ((x * (x_max - x_min)) / size[0]) + x_min    
+            z = ((z * (z_max - z_min)) / size[1]) + z_min    
+            
+            # x = int(Misc.map(x, 0, size[0], 0, imgObj.img_width))
+            # z = int(Misc.map(z, 0, size[1], 0, imgObj.img_height))
+            
+            # x += x_move
+            # y += y_move            
             # print(x, y)
                         
             # xPid.pid.SetPoint = imgObj.img_width / 2.0
@@ -160,14 +173,14 @@ def run(img):
 
             # target = ik.setPitchRanges((0, round(yPid.dis, 4), round(zPid.dis, 4)), -90, -85, -95)
             
-            target = ik.setPitchRanges((x, 5, y), -90, -89, -91)
+            target = ik.setPitchRanges((x, 10, z), -90, -95, -85)
             if target:
                 servo_data = target[1]
                 bus_servo_control.set_servos(joints_pub, 20, (
                     (3, servo_data['servo3']), (4, servo_data['servo4']), (5, servo_data['servo5']), (6, servo_data['servo6'])))
             
-            x_move = x - size[0] / 2
-            y_move = y - size[1] / 2
+            # x_move = x - size[0] / 2
+            # y_move = y - size[1] / 2
             
             time.sleep(2)
     
