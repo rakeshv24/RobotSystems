@@ -118,19 +118,27 @@ def run(img):
     global lock, __isRunning
 
     imgObj = Perception(img)
-    imgObj.image_processing()
-    imgObj.feature_detection()
-    imgObj.draw_features()
+    # imgObj.image_processing()
+    # imgObj.feature_detection()
+    # imgObj.draw_features()
+    
+    points = np.array([[50, 50], [150, 50], [50, 150], [150, 150]])
+    x_move = 0.0
+    y_move = 0.0
     
     xPid = Motion(x_pid, x_dis)
     yPid = Motion(y_pid, y_dis)
     zPid = Motion(z_pid, z_dis)
 
     if start_move:
-        for f in imgObj.features:
+        # for f in imgObj.features:
+        for f in points:
             x, y = f.ravel()
             x = int(Misc.map(x, 0, size[0], 0, imgObj.img_width))
             y = int(Misc.map(y, 0, size[1], 0, imgObj.img_height))
+            
+            x += x_move
+            y += y_move            
             # print(x, y)
                         
             # xPid.pid.SetPoint = imgObj.img_width / 2.0
@@ -152,12 +160,15 @@ def run(img):
 
             # target = ik.setPitchRanges((0, round(yPid.dis, 4), round(zPid.dis, 4)), -90, -85, -95)
             
-            target = ik.setPitchRanges((x, 5, y), -90, -85, -95)
+            target = ik.setPitchRanges((x, 5, y), -90, -89, -91)
             if target:
                 servo_data = target[1]
                 bus_servo_control.set_servos(joints_pub, 20, (
                     (3, servo_data['servo3']), (4, servo_data['servo4']), (5, servo_data['servo5']), (6, servo_data['servo6'])))
-                
+            
+            x_move = x - size[0] / 2
+            y_move = y - size[1] / 2
+            
             time.sleep(2)
     
     with lock:
