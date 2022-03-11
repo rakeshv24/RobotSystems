@@ -108,7 +108,6 @@ def init():
     global color_range
 
     rospy.loginfo("object tracking Init")
-    color_range = rospy.get_param('/lab_config_manager/color_range_list', {})  # get lab range from ros param server
     initMove()
     reset()
 
@@ -132,29 +131,32 @@ def run(img):
             x, y = f.ravel()
             x = int(Misc.map(x, 0, size[0], 0, imgObj.img_width))
             y = int(Misc.map(y, 0, size[1], 0, imgObj.img_height))
+            # print(x, y)
                         
-            xPid.pid.SetPoint = imgObj.img_width / 2.0
-            xPid.update(x)
-            xPid.mod_dist(xPid.pid.output)
-            xPid.clamp_dist(200, 800)
+            # xPid.pid.SetPoint = imgObj.img_width / 2.0
+            # xPid.update(x)
+            # xPid.mod_dist(xPid.pid.output)
+            # xPid.clamp_dist(200, 800)
 
-            yPid.pid.SetPoint = 900
-            if abs(imgObj.max_area - 900) < 50:
-                imgObj.max_area = 900
-            yPid.update(imgObj.max_area)
-            yPid.mod_dist(yPid.pid.output)
-            yPid.clamp_dist(0.12, 0.25)
+            # yPid.pid.SetPoint = 900
+            # if abs(imgObj.max_area - 900) < 50:
+            #     imgObj.max_area = 900
+            # yPid.update(imgObj.max_area)
+            # yPid.mod_dist(yPid.pid.output)
+            # yPid.clamp_dist(0.12, 0.25)
 
-            zPid.pid.SetPoint = imgObj.img_height / 2.0
-            zPid.update(y)
-            zPid.mod_dist(zPid.pid.output)
-            zPid.clamp_dist(0.17, 0.22)
+            # zPid.pid.SetPoint = imgObj.img_height / 2.0
+            # zPid.update(y)
+            # zPid.mod_dist(zPid.pid.output)
+            # zPid.clamp_dist(0.17, 0.22)
 
-            target = ik.setPitchRanges((0, round(yPid.dis, 4), round(zPid.dis, 4)), -90, -85, -95)
+            # target = ik.setPitchRanges((0, round(yPid.dis, 4), round(zPid.dis, 4)), -90, -85, -95)
+            
+            target = ik.setPitchRanges((x, 5, y), -90, -85, -95)
             if target:
                 servo_data = target[1]
                 bus_servo_control.set_servos(joints_pub, 20, (
-                    (3, servo_data['servo3']), (4, servo_data['servo4']), (5, servo_data['servo5']), (6, xPid.dis)))
+                    (3, servo_data['servo3']), (4, servo_data['servo4']), (5, servo_data['servo5']), (6, servo_data['servo6'])))
                 
             time.sleep(2)
     
