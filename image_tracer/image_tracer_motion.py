@@ -32,6 +32,10 @@ __target_color = ''
 __isRunning = False
 org_image_sub_ed = False
 
+x_start = 0.0
+y_start = 0.1
+z_start = 0.15
+
 x_dis = 500
 y_dis = 0.167
 Z_DIS = 0.2
@@ -66,7 +70,7 @@ def getAreaMaxContour(contours):
 
 def initMove(delay=True):
     with lock:
-        target = ik.setPitchRanges((0, y_dis, Z_DIS), -90, -92, -88)
+        target = ik.setPitchRanges((x_start, y_start, z_start), -90, -92, -88)
         if target:
             servo_data = target[1]
             bus_servo_control.set_servos(joints_pub, 1500, ((
@@ -121,11 +125,11 @@ def run(img):
     # imgObj.feature_detection()
     # imgObj.draw_features()
     
-    points = np.array([[50, 50], [150, 50], [50, 150], [150, 150]])
+    points = np.array([[160, 120], [200, 120], [200, 160], [160, 160], [160, 120]])
     x_move = 0.0
     y_move = 0.0
-    x_min, x_max = -.15, .15
-    z_min, z_max = -.15, .15
+    x_min, x_max = -.02, .02
+    z_min, z_max = -.01, .05
     
     xPid = Motion(x_pid, x_dis)
     yPid = Motion(y_pid, y_dis)
@@ -143,9 +147,15 @@ def run(img):
                 
                 x = (size[0] / 2) + x_diff
                 z = (size[1] / 2) + z_diff
+            # else:
+            #     x = (size[0] / 2) - x
+            #     z = (size[0] / 2) - z
             
             x = ((x * (x_max - x_min)) / size[0]) + x_min    
-            z = ((z * (z_max - z_min)) / size[1]) + z_min    
+            z = ((z * (z_max - z_min)) / size[1]) + z_min   
+            
+            x = round(x+x_start, 3) 
+            z = round(z+z_start, 3) 
             
             # x = int(Misc.map(x, 0, size[0], 0, imgObj.img_width))
             # z = int(Misc.map(z, 0, size[1], 0, imgObj.img_height))
@@ -173,7 +183,7 @@ def run(img):
 
             # target = ik.setPitchRanges((0, round(yPid.dis, 4), round(zPid.dis, 4)), -90, -85, -95)
             
-            target = ik.setPitchRanges((x, 10, z), -90, -95, -85)
+            target = ik.setPitchRanges((x, 0.10, z), -90, -95, -85)
             if target:
                 servo_data = target[1]
                 bus_servo_control.set_servos(joints_pub, 20, (
