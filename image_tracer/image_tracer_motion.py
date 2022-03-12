@@ -139,7 +139,7 @@ def run(img):
 
     if start_move:
         # for f in imgObj.features:
-        for i in range(points):
+        for i in range(len(points)):
             x, z = points[i].ravel()
             
             # if i > 0:
