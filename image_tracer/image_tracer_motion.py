@@ -154,7 +154,7 @@ def run(img):
             #     z = (size[0] / 2) - z
                 
             x = (size[0] / 2) - x
-            z = (size[0] / 2) - z
+            z = (size[1] / 2) - z
             
             x = ((x * (x_max - x_min)) / size[0]) + x_min    
             z = ((z * (z_max - z_min)) / size[1]) + z_min   
