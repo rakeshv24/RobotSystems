@@ -127,6 +127,7 @@ def run(img):
             # print(x, y)
                         
             print(f"x_rw:{x}, z_rw:{z}")
+            print(f"x_prev:{x_prev}, z_prev:{z_prev}")
             print(f"x_move:{x_move}, z_move:{z_move}")
             target = ik.setPitchRanges((x_move, 0.10, z_move), -90, -100, -80)
             print(f"target: {target}\n")
