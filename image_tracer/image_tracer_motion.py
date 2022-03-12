@@ -125,11 +125,13 @@ def run(img):
     # imgObj.feature_detection()
     # imgObj.draw_features()
     
-    points = np.array([[160, 120], [200, 120], [200, 160], [160, 160], [160, 120]])
+    # points = np.array([[160, 120], [200, 120], [200, 160], [160, 160], [160, 120]])
+    points = np.array([[140, 100], [180, 100], [180, 140], [140, 140], [140, 100]])
     x_move = 0.0
     y_move = 0.0
     x_min, x_max = -.02, .02
     z_min, z_max = .01, .05
+    x_prev, z_prev = 0.0, 0.0
     
     xPid = Motion(x_pid, x_dis)
     yPid = Motion(y_pid, y_dis)
@@ -140,22 +142,25 @@ def run(img):
         for i in range(points):
             x, z = points[i].ravel()
             
-            if i > 0:
-                x_prev, z_prev = points[i-1].ravel()
-                x_diff = x - x_prev
-                z_diff = z - z_prev
+            # if i > 0:
+            #     x_prev, z_prev = points[i-1].ravel()
+            #     x_diff = x - x_prev
+            #     z_diff = z - z_prev
                 
-                x = (size[0] / 2) + x_diff
-                z = (size[1] / 2) + z_diff
+            #     x = (size[0] / 2) + x_diff
+            #     z = (size[1] / 2) + z_diff
             # else:
             #     x = (size[0] / 2) - x
             #     z = (size[0] / 2) - z
+                
+            x = (size[0] / 2) - x
+            z = (size[0] / 2) - z
             
             x = ((x * (x_max - x_min)) / size[0]) + x_min    
             z = ((z * (z_max - z_min)) / size[1]) + z_min   
             
-            x = round(x+x_start, 3) 
-            z = round(z+z_start, 3) 
+            x = -x_prev + round(x, 3) 
+            z = -z_prev + round(z, 3) 
             
             # x = int(Misc.map(x, 0, size[0], 0, imgObj.img_width))
             # z = int(Misc.map(z, 0, size[1], 0, imgObj.img_height))
@@ -191,6 +196,9 @@ def run(img):
             
             # x_move = x - size[0] / 2
             # y_move = y - size[1] / 2
+            
+            x_prev = x
+            z_prev = z
             
             time.sleep(2)
     
