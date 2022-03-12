@@ -94,8 +94,8 @@ def run(img):
     # CIRCLE
     theta = np.linspace(0, 2*np.pi, 10).reshape(-1, 1)
     r = 40
-    cX = r * np.cos(theta)
-    cY = r * np.sin(theta)
+    cX = r * np.cos(theta) + (size[0] / 2)
+    cY = r * np.sin(theta) + (size[1] / 2)
     points = np.hstack((cX, cY))
     
     x_move = 0.0
