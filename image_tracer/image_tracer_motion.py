@@ -113,8 +113,8 @@ def run(img):
             
             print(f"x_im:{x}, z_im:{z}")
             
-            x = np.sign(x) * ((abs(x) * (x_max - x_min)) / size[0]) + x_min    
-            z = np.sign(z) * ((abs(z) * (z_max - z_min)) / size[1]) + z_min   
+            x = np.sign(x) * (((abs(x) * (x_max - x_min)) / size[0]) + x_min)
+            z = np.sign(z) * (((abs(z) * (z_max - z_min)) / size[1]) + z_min)   
             
             x_move = round(-x_prev + x + x_start, 3) 
             z_move = round(-z_prev + z + z_start, 3) 
