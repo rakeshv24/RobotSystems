@@ -97,27 +97,29 @@ def run(img):
         for i in range(len(points)):
             x, z = points[i].ravel()
             
-            # if i > 0:
-            #     x_prev, z_prev = points[i-1].ravel()
-            #     x_diff = x - x_prev
-            #     z_diff = z - z_prev
+            if i > 0:
+                x_prev, z_prev = points[i-1].ravel()
+                x_diff = x - x_prev
+                z_diff = z - z_prev
                 
-            #     x = (size[0] / 2) + x_diff
-            #     z = (size[1] / 2) + z_diff
+                x = (size[0] / 2) + x_diff
+                z = (size[1] / 2) + z_diff
             # else:
-            #     x = (size[0] / 2) - x
-            #     z = (size[1] / 2) - z
+            #     x = x - (size[0] / 2)
+            #     z = z - (size[1] / 2)
                 
-            x = x - (size[0] / 2)
-            z = z - (size[1] / 2)
+            # x = x - (size[0] / 2)
+            # z = z - (size[1] / 2)
             
             print(f"x_im:{x}, z_im:{z}")
             
             x = np.sign(x) * (((abs(x) * (x_max - x_min)) / size[0]) + x_min)
             z = np.sign(z) * (((abs(z) * (z_max - z_min)) / size[1]) + z_min)   
             
-            x_move = round(-x_prev + x + x_start, 3) 
-            z_move = round(-z_prev + z + z_start, 3) 
+            # x_move = round(-x_prev + x + x_start, 3) 
+            # z_move = round(-z_prev + z + z_start, 3) 
+            x_move = round(x, 3) 
+            z_move = round(z, 3) 
             
             # x = int(Misc.map(x, 0, size[0], 0, imgObj.img_width))
             # z = int(Misc.map(z, 0, size[1], 0, imgObj.img_height))
@@ -127,7 +129,7 @@ def run(img):
             # print(x, y)
                         
             print(f"x_rw:{x}, z_rw:{z}")
-            print(f"x_prev:{x_prev}, z_prev:{z_prev}")
+            # print(f"x_prev:{x_prev}, z_prev:{z_prev}")
             print(f"x_move:{x_move}, z_move:{z_move}")
             target = ik.setPitchRanges((x_move, 0.10, z_move), -90, -100, -80)
             print(f"target: {target}\n")
@@ -140,8 +142,8 @@ def run(img):
             # x_move = x - size[0] / 2
             # y_move = y - size[1] / 2
             
-            x_prev = x
-            z_prev = z
+            # x_prev = x
+            # z_prev = z
             
             time.sleep(2)
     
