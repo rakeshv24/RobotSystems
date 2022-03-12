@@ -159,8 +159,8 @@ def run(img):
             x = ((x * (x_max - x_min)) / size[0]) + x_min    
             z = ((z * (z_max - z_min)) / size[1]) + z_min   
             
-            x = -x_prev + round(x, 3) 
-            z = -z_prev + round(z, 3) 
+            x_move = -x_prev + round(x, 3) 
+            z_move = -z_prev + round(z, 3) 
             
             # x = int(Misc.map(x, 0, size[0], 0, imgObj.img_width))
             # z = int(Misc.map(z, 0, size[1], 0, imgObj.img_height))
@@ -187,8 +187,10 @@ def run(img):
             # zPid.clamp_dist(0.17, 0.22)
 
             # target = ik.setPitchRanges((0, round(yPid.dis, 4), round(zPid.dis, 4)), -90, -85, -95)
-            
+            print(f"x_move:{x_move}, z_move:{z_move}")
             target = ik.setPitchRanges((x, 0.10, z), -90, -95, -85)
+            print(f"target: {target}\n")
+            
             if target:
                 servo_data = target[1]
                 bus_servo_control.set_servos(joints_pub, 20, (
