@@ -126,7 +126,9 @@ def run(img):
     # imgObj.draw_features()
     
     # points = np.array([[160, 120], [200, 120], [200, 160], [160, 160], [160, 120]])
-    points = np.array([[140, 100], [180, 100], [180, 140], [140, 140], [140, 100]])
+    # points = np.array([[140, 100], [180, 100], [180, 140], [140, 140], [140, 100]])
+    points = np.array([[100, 60], [220, 60], [220, 180], [100, 180], [100, 60]])
+    
     x_move = 0.0
     y_move = 0.0
     x_min, x_max = -.02, .02
@@ -188,7 +190,7 @@ def run(img):
 
             # target = ik.setPitchRanges((0, round(yPid.dis, 4), round(zPid.dis, 4)), -90, -85, -95)
             print(f"x_move:{x_move}, z_move:{z_move}")
-            target = ik.setPitchRanges((x_move, 0.10, z_move), -180, -180, 0)
+            target = ik.setPitchRanges((x_move, 0.10, z_move), -90, -95, -85)
             print(f"target: {target}\n")
             
             if target:
