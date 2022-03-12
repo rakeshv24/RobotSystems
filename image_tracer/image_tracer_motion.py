@@ -129,7 +129,7 @@ def run(img):
     x_move = 0.0
     y_move = 0.0
     x_min, x_max = -.02, .02
-    z_min, z_max = -.01, .05
+    z_min, z_max = .01, .05
     
     xPid = Motion(x_pid, x_dis)
     yPid = Motion(y_pid, y_dis)
