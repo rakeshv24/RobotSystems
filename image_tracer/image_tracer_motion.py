@@ -151,7 +151,7 @@ def run(img):
             #     z = (size[1] / 2) + z_diff
             # else:
             #     x = (size[0] / 2) - x
-            #     z = (size[0] / 2) - z
+            #     z = (size[1] / 2) - z
                 
             x = (size[0] / 2) - x
             z = (size[1] / 2) - z
