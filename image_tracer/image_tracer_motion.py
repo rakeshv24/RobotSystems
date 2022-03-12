@@ -113,10 +113,10 @@ def run(img):
             print(f"x_im:{x}, z_im:{z}")
             
             x = np.sign(x) * (((abs(x) * (x_max - x_min)) / size[0]) + x_min)
-            z = np.sign(z) * (((abs(z) * (z_max - z_min)) / size[1]) + z_min)   
+            z = np.sign(z) * (((abs(z) * (z_max - z_min)) / size[1]) + z_min)  
             
-            x_move = round(-x_prev + x + x_start, 3) 
-            z_move = round(-z_prev + z + z_start, 3) 
+            x_move = round(x + x_start, 3) 
+            z_move = round(z + z_start, 3) 
             # x_move = round(x, 3) 
             # z_move = round(z, 3) 
             
@@ -134,8 +134,8 @@ def run(img):
                 bus_servo_control.set_servos(joints_pub, 20, (
                     (3, servo_data['servo3']), (4, servo_data['servo4']), (5, servo_data['servo5']), (6, servo_data['servo6'])))
             
-            x_prev = x
-            z_prev = z
+            # x_prev = x
+            # z_prev = z
             
             time.sleep(2)
     
