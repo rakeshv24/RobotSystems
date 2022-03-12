@@ -155,8 +155,8 @@ def run(img):
             #     x = (size[0] / 2) - x
             #     z = (size[1] / 2) - z
                 
-            x = (size[0] / 2) - x
-            z = (size[1] / 2) - z
+            x = x - (size[0] / 2)
+            z = z - (size[1] / 2)
             
             x = ((x * (x_max - x_min)) / size[0]) + x_min    
             z = ((z * (z_max - z_min)) / size[1]) + z_min   
@@ -190,7 +190,7 @@ def run(img):
 
             # target = ik.setPitchRanges((0, round(yPid.dis, 4), round(zPid.dis, 4)), -90, -85, -95)
             print(f"x_move:{x_move}, z_move:{z_move}")
-            target = ik.setPitchRanges((x_move, 0.10, z_move), -90, -95, -85)
+            target = ik.setPitchRanges((x_move, 0.10, z_move), -90, -100, -80)
             print(f"target: {target}\n")
             
             if target:
