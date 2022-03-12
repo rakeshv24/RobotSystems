@@ -84,7 +84,19 @@ def run(img):
     
     # points = np.array([[160, 120], [200, 120], [200, 160], [160, 160], [160, 120]])
     # points = np.array([[140, 100], [180, 100], [180, 140], [140, 140], [140, 100]])
+    
+    # SQUARE
     points = np.array([[100, 60], [220, 60], [220, 180], [100, 180], [100, 60]])
+    
+    # TRIANGLE
+    points = np.array([[160, 60], [220, 180], [100, 180], [160, 60]])
+    
+    # CIRCLE
+    theta = np.linspace(0, 2*np.pi, 10).reshape(-1, 1)
+    r = 40
+    cX = r * np.cos(theta)
+    cY = r * np.sin(theta)
+    points = np.hstack((cX, cY))
     
     x_move = 0.0
     x_min, x_max = -.02, .02
