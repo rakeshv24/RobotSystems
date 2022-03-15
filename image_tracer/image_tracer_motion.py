@@ -1,10 +1,8 @@
 #!/usr/bin/python3
 # coding=utf8
 
-import sys
 import cv2
 import time
-import math
 import rospy
 import numpy as np
 from threading import RLock, Timer
@@ -15,11 +13,7 @@ from sensor_msgs.msg import Image
 from sensor.msg import Led
 from object_tracking.srv import *
 from hiwonder_servo_msgs.msg import MultiRawIdPosDur
-
 from kinematics import ik_transform
-
-from armpi_fpv import PID
-from armpi_fpv import Misc
 from armpi_fpv import bus_servo_control
 
 ik = ik_transform.ArmIK()
@@ -33,7 +27,7 @@ org_image_sub_ed = False
 
 x_start = 0.0
 y_start = 0.1
-z_start = 0.15
+z_start = 0.20
 
 
 def initMove(delay=True):
@@ -59,169 +53,124 @@ def turn_off_rgb():
 
 
 def reset():
-    global x_dis, y_dis, z_dis
-    global __target_color
-
     with lock:
         turn_off_rgb()
 
-def init():
-    global color_range
 
-    rospy.loginfo("object tracking Init")
+def init():
+    rospy.loginfo("Image tracing Init")
     initMove()
     reset()
-    
-def run(img):
+
+
+def run(features):
     global start_move
-    global x_dis, y_dis, z_dis
-    global lock, __isRunning
 
-    imgObj = Perception(img)
-    # imgObj.image_processing()
-    # imgObj.feature_detection()
-    # imgObj.draw_features()
-    
-    # points = np.array([[160, 120], [200, 120], [200, 160], [160, 160], [160, 120]])
-    # points = np.array([[140, 100], [180, 100], [180, 140], [140, 140], [140, 100]])
-    
     # SQUARE
-    points = np.array([[100, 60], [220, 60], [220, 180], [100, 180], [100, 60]])
-    
+    # points = np.array([[100, 60], [220, 180], [100, 180], [220, 60], [100, 60]])
+
     # TRIANGLE
-    points = np.array([[160, 60], [220, 180], [100, 180], [160, 60]])
-    
+    # points = np.array([[160, 60], [220, 180], [100, 180], [160, 60]])
+
     # CIRCLE
-    theta = np.linspace(0, 2*np.pi, 10).reshape(-1, 1)
-    r = 40
-    cX = r * np.cos(theta) + (size[0] / 2)
-    cY = r * np.sin(theta) + (size[1] / 2)
-    points = np.hstack((cX, cY))
-    
-    x_move = 0.0
-    x_min, x_max = -.02, .02
-    z_min, z_max = .01, .05
-    x_prev, z_prev = 0.0, 0.0
-    
-    if start_move:
-        # for f in imgObj.features:
-        for i in range(len(points)):
-            x, z = points[i].ravel()
-            
-            # if i > 0:
-            #     x_prev, z_prev = points[i-1].ravel()
-            #     x_diff = x - x_prev
-            #     z_diff = z - z_prev
-                
-            #     x = (size[0] / 2) + x_diff
-            #     z = (size[1] / 2) + z_diff
-            # else:
-            #     x = x - (size[0] / 2)
-            #     z = z - (size[1] / 2)
-                
-            x = x - (size[0] / 2)
-            z = z - (size[1] / 2)
-            
-            print(f"x_im:{x}, z_im:{z}")
-            
-            x = np.sign(x) * (((abs(x) * (x_max - x_min)) / size[0]) + x_min)
-            z = np.sign(z) * (((abs(z) * (z_max - z_min)) / size[1]) + z_min)  
-            
-            x_move = round(x + x_start, 3) 
-            z_move = round(z + z_start, 3) 
-            # x_move = round(x, 3) 
-            # z_move = round(z, 3) 
-            
-            # x = int(Misc.map(x, 0, size[0], 0, imgObj.img_width))
-            # z = int(Misc.map(z, 0, size[1], 0, imgObj.img_height))
-                        
-            print(f"x_rw:{x}, z_rw:{z}")
-            print(f"x_prev:{x_prev}, z_prev:{z_prev}")
-            print(f"x_move:{x_move}, z_move:{z_move}")
-            target = ik.setPitchRanges((x_move, 0.10, z_move), -90, -100, -80)
-            print(f"target: {target}\n")
-            
-            if target:
-                servo_data = target[1]
-                bus_servo_control.set_servos(joints_pub, 20, (
-                    (3, servo_data['servo3']), (4, servo_data['servo4']), (5, servo_data['servo5']), (6, servo_data['servo6'])))
-            
-            # x_prev = x
-            # z_prev = z
-            
-            time.sleep(2)
-    
-    with lock:
-        __isRunning = False
-    
-    return img
+    # theta = np.linspace(0, 2*np.pi, 10).reshape(-1, 1)
+    # r = 100
+    # cX = r * np.cos(theta) + (size[0] / 2)
+    # cY = r * np.sin(theta) + (size[1] / 2)
+    # points = np.hstack((cX, cY))
 
+    for points in features:
+        x_move = 0.0
+        x_min, x_max = -.02, .02
+        z_min, z_max = .01, .05
 
-def image_callback(ros_image):
-    global lock
+        sorted_points = np.array([points[0]])
 
-    image = np.ndarray(shape=(ros_image.height, ros_image.width, 3), dtype=np.uint8,
-                       buffer=ros_image.data)
-    cv2_img = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        i = 0
+        while len(sorted_points) != len(points):
+            min_dist = 99999
+            p1 = sorted_points[i]
+            for j in range(len(points)):
+                p2 = points[j]
+                flag = 0
+                for k in sorted_points:
+                    if p2[0] == k[0] and p2[1] == k[1]:
+                        flag = 1
+                        break
+                if flag == 1:
+                    continue
+                else:
+                    dist = np.linalg.norm(p2 - p1)
+                    if dist < min_dist:
+                        min_dist = dist
+                        next_wp = p2
 
-    frame = cv2_img.copy()
-    frame_result = frame
-    with lock:
-        if __isRunning:
-            frame_result = run(frame)
-    rgb_image = cv2.cvtColor(frame_result, cv2.COLOR_BGR2RGB).tostring()
-    ros_image.data = rgb_image
+            sorted_points = np.insert(sorted_points, len(sorted_points), next_wp, axis=0)
+            i += 1
 
-    image_pub.publish(ros_image)
+        sorted_points = np.insert(sorted_points, len(sorted_points), sorted_points[0], axis=0)
+        print(f"Waypoints: {sorted_points}")
 
+        if start_move:
+            for i in range(len(sorted_points)):
+                x, z = sorted_points[i].ravel()
 
-def enter_func(msg):
-    global lock
-    global image_sub
-    global __isRunning
-    global org_image_sub_ed
+                x = (size[0] / 2) - x
+                z = (size[1] / 2) - z
 
-    rospy.loginfo("enter object tracking")
-    init()
-    with lock:
-        if not org_image_sub_ed:
-            org_image_sub_ed = True
-            image_sub = rospy.Subscriber('/usb_cam/image_raw', Image, image_callback)
+                print(f"x_im:{x}, z_im:{z}")
 
-    return [True, 'enter']
+                x = np.sign(x) * (((abs(x) * (x_max - x_min)) / size[0]) + x_min)
+                z = np.sign(z) * (((abs(z) * (z_max - z_min)) / size[1]) + z_min)
+
+                x_move = round(x + x_start, 3)
+                z_move = round(z + z_start, 3)
+
+                print(f"x_rw:{x}, z_rw:{z}")
+                print(f"x_move:{x_move}, z_move:{z_move}")
+                target = ik.setPitchRanges((x_move, 0.10, z_move), -90, -100, -80)
+                print(f"target: {target}\n")
+
+                if target:
+                    servo_data = target[1]
+                    bus_servo_control.set_servos(joints_pub, 20, (
+                        (3, servo_data['servo3']), (4, servo_data['servo4']), (5, servo_data['servo5']), (6, servo_data['servo6'])))
+
+                time.sleep(2)
+
+        time.sleep(2)
+        initMove()
 
 
 heartbeat_timer = None
-
-
-def exit_func(msg):
-    global lock
-    global image_sub
-    global __isRunning
-    global org_image_sub_ed
-
-    rospy.loginfo("exit object tracking")
-    with lock:
-        __isRunning = False
-        reset()
-        try:
-            if org_image_sub_ed:
-                org_image_sub_ed = False
-                heartbeat_timer.cancel()
-                image_sub.unregister()
-        except BaseException as e:
-            rospy.loginfo('%s', e)
-
-    return [True, 'exit']
 
 
 def start_running():
     global lock
     global __isRunning
 
-    rospy.loginfo("start running object tracking")
+    rospy.loginfo("Initialize arm")
+    init()
+
+    rospy.loginfo("Start image tracing")
     with lock:
         __isRunning = True
+
+        img = cv2.imread('/home/ubuntu/shapes.png')
+        imgObj = Perception(img)
+        imgObj.image_processing()
+        imgObj.find_contours()
+        features = imgObj.feature_detection()
+
+        run(features)
+
+        ros_image = Image()
+        rgb_image = cv2.cvtColor(imgObj.org_image, cv2.COLOR_BGR2RGB).tostring()
+        ros_image.data = rgb_image
+
+        image_pub.publish(ros_image)
+
+        __isRunning = False
 
 
 def stop_running():
@@ -262,36 +211,65 @@ class Perception():
     def __init__(self, img):
         self.img = img
         self.img_copy = img.copy()
-        self.img_height, self.img_width = img.shape[:2]
-
-        self.max_area = 0
-        self.max_area_contour = 0
-
-    def draw_features(self):
-        for i in self.features:
-            x, y = i.ravel()
-            x = int(Misc.map(x, 0, size[0], 0, self.img_width))
-            y = int(Misc.map(y, 0, size[1], 0, self.img_height))
-            cv2.circle(self.img, (x, y), 4, 200, -1)
+        self.width = 320
+        self.height = 240
 
     def image_processing(self):
-        self.frame = cv2.resize(self.img_copy, size, interpolation=cv2.INTER_NEAREST)
-        self.gray_image = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
-        
+        self.resized_image = cv2.resize(self.img, (self.width, self.height), interpolation=cv2.INTER_AREA)
+        self.org_image = self.resized_image.copy()
+        self.gray_image = cv2.cvtColor(self.resized_image, cv2.COLOR_BGR2GRAY)
+        self.blur_image = cv2.GaussianBlur(self.gray_image, (5, 5), 0)
+        self.thresh_image = cv2.threshold(self.blur_image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+        self.morph_image = self.morph_transformation(self.thresh_image)
+        self.canny_image = self.edge_detection(self.morph_image)
+
     def feature_detection(self):
-        gray = np.float32(self.gray_image)
-        self.features = cv2.goodFeaturesToTrack(gray, 10, 0.01, 10)
-        self.features = np.int0(self.features).reshape(-1, 2)
-        self.features = self.features[np.argsort(self.features[:, 0])]
-        
-    def erode(self, frame):
-        return cv2.erode(frame, cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3)))
+        features = []
+        for img in self.cont_imgs:
+            gray = np.float32(img)
+            corners = cv2.goodFeaturesToTrack(gray, 8, 0.01, 50)
+            if corners is not None:
+                corners = np.int0(corners).reshape(-1, 2)
 
-    def dilate(self, frame):
-        return cv2.dilate(frame, cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3)))
+                for i in corners:
+                    x, y = i.ravel()
+                    cv2.circle(self.org_image, (x, y), 4, 200, -1)
 
-    def get_contours(self, frame):
-        return cv2.findContours(frame, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[-2]
+                features.append(corners)
+
+        features = np.array(features)
+        return features
+
+    def morph_transformation(self, frame):
+        kernel = np.ones((5, 5), np.uint8)
+        # opening = cv2.morphologyEx(frame, cv2.MORPH_CLOSE, kernel)
+        opening = cv2.morphologyEx(frame, cv2.MORPH_OPEN, kernel)
+        return opening
+
+    def edge_detection(self, frame, sigma=0.33):
+        # compute the median of the single channel pixel intensities
+        v = np.median(frame)
+
+        # apply automatic Canny edge detection using the computed median
+        lower = int(max(0, (1.0 - sigma) * v))
+        upper = int(min(255, (1.0 + sigma) * v))
+        edged = cv2.Canny(frame, lower, upper)
+
+        return edged
+
+    def find_contours(self):
+        self.contours = cv2.findContours(self.canny_image, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)[0]
+        self.cont_imgs = []
+
+        for _, c in enumerate(self.contours):
+            contArea = cv2.contourArea(c)
+            minArea = 999
+
+            if contArea > minArea:
+                cont_img = np.zeros((self.height, self.width), dtype=np.uint8)
+                cv2.drawContours(cont_img, [c], 0, 255, 0)
+
+                self.cont_imgs.append(cont_img)
 
 
 if __name__ == '__main__':
@@ -303,17 +281,13 @@ if __name__ == '__main__':
 
     rgb_pub = rospy.Publisher('/sensor/rgb_led', Led, queue_size=1)
 
-    enter_srv = rospy.Service('/image_tracer/enter', Trigger, enter_func)
-    exit_srv = rospy.Service('/image_tracer/exit', Trigger, exit_func)
     running_srv = rospy.Service('/image_tracer/set_running', SetBool, set_running)
     heartbeat_srv = rospy.Service('/image_tracer/heartbeat', SetBool, heartbeat_srv_cb)
 
     debug = False
     if debug:
         rospy.sleep(0.2)
-        enter_func(1)
         start_running()
-
     try:
         rospy.spin()
     except KeyboardInterrupt:

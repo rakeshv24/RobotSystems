@@ -10,26 +10,8 @@ class ImageTracer:
         self.org_image = None
         self.thresh_image = None
         self.contours = None
-        self.width = 1280
-        self.height = 720
-
-    def detect_shape(self, c):
-        shape = "unidentified"
-        peri = cv2.arcLength(c, True)
-        approx = cv2.approxPolyDP(c, 0.04 * peri, True)
-
-        if len(approx) == 3:
-            shape = "triangle"
-        elif len(approx) == 4:
-            (x, y, w, h) = cv2.boundingRect(approx)
-            ar = w / float(h)
-            shape = "square" if ar >= 0.95 and ar <= 1.05 else "rectangle"
-        elif len(approx) == 5:
-            shape = "pentagon"
-        else:
-            shape = "circle"
-        
-        return shape
+        self.width = 320
+        self.height = 240
     
     def find_contours(self):
         self.contours = cv2.findContours(self.canny_image, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)[0]
@@ -61,7 +43,7 @@ class ImageTracer:
                 self.cont_imgs.append(cont_img)
                 
     def grab_image(self):
-        self.cap = cv2.VideoCapture(2)
+        self.cap = cv2.VideoCapture(0)
         while self.cap.isOpened():
             ret, frame = self.cap.read()
             if ret:
